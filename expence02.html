@@ -1,0 +1,5655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Communication Expense Tracker</title>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+<style>
+:root{
+ --navy:#073763;
+ --navy2:#0b4f88;
+ --blue:#1478c9;
+ --blue2:#eaf4ff;
+
+ --green:#159447;
+ --green2:#eaf8ef;
+
+ --orange:#e89a16;
+ --orange2:#fff6e3;
+
+ --purple:#7650d1;
+ --purple2:#f3efff;
+
+ --red:#dc3545;
+ --red2:#fff1f2;
+
+ --text:#172033;
+ --muted:#718096;
+ --light:#f5f8fc;
+ --border:#e2e8f0;
+ --white:#fff;
+
+ --card:#ffffff;
+ --table-head:#0a4679;
+ --input:#ffffff;
+
+ --shadow:0 8px 28px rgba(25,55,90,.08);
+ --shadow2:0 18px 45px rgba(25,55,90,.16);
+
+ --radius:16px;
+}
+
+body.dark{
+ --navy:#8fc9ff;
+ --navy2:#5ca9e8;
+ --blue:#48a7ff;
+ --blue2:#102b43;
+
+ --green:#4ade80;
+ --green2:#102d1d;
+
+ --orange:#fbbf24;
+ --orange2:#34260b;
+
+ --purple:#a78bfa;
+ --purple2:#241c42;
+
+ --red:#fb7185;
+ --red2:#35151b;
+
+ --text:#e6edf5;
+ --muted:#94a3b8;
+ --light:#0b1220;
+ --border:#263449;
+ --white:#111827;
+
+ --card:#111a2a;
+ --table-head:#123d67;
+ --input:#111a2a;
+
+ --shadow:0 8px 28px rgba(0,0,0,.25);
+ --shadow2:0 20px 50px rgba(0,0,0,.4);
+}
+
+*{
+ box-sizing:border-box;
+}
+
+html,body{
+ margin:0;
+ padding:0;
+ min-height:100%;
+}
+
+body{
+ background:
+ radial-gradient(
+  circle at top right,
+  rgba(20,120,201,.08),
+  transparent 28%
+ ),
+ var(--light);
+
+ color:var(--text);
+
+ font-family:
+ Inter,
+ "Segoe UI",
+ Arial,
+ sans-serif;
+
+ overflow-x:hidden;
+
+ transition:
+ background .35s ease,
+ color .35s ease;
+}
+
+button,
+input,
+select{
+ font:inherit;
+}
+
+button{
+ cursor:pointer;
+}
+
+.hidden{
+ display:none!important;
+}
+
+/* =========================================================
+   TOPBAR
+========================================================= */
+
+.topbar{
+ position:sticky;
+ top:0;
+ z-index:1000;
+
+ height:68px;
+
+ background:rgba(255,255,255,.94);
+
+ backdrop-filter:blur(16px);
+
+ border-bottom:1px solid var(--border);
+
+ box-shadow:
+ 0 2px 15px rgba(15,23,42,.05);
+
+ transition:.35s;
+}
+
+body.dark .topbar{
+ background:rgba(11,18,32,.92);
+}
+
+.topbar-inner{
+ width:100%;
+ max-width:1700px;
+ height:100%;
+
+ margin:auto;
+
+ padding:
+ 0
+ clamp(14px,2.5vw,34px);
+
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+
+ gap:20px;
+}
+
+.brand{
+ display:flex;
+ align-items:center;
+ gap:12px;
+
+ min-width:0;
+}
+
+.logo{
+ width:42px;
+ height:42px;
+
+ flex:0 0 42px;
+
+ display:grid;
+ place-items:center;
+
+ border-radius:12px;
+
+ color:#fff;
+
+ font-size:20px;
+ font-weight:950;
+
+ background:
+ linear-gradient(
+  135deg,
+  #06345d,
+  #1680cc
+ );
+
+ box-shadow:
+ 0 8px 20px rgba(7,55,99,.2);
+
+ animation:
+ logoFloat 3s ease-in-out infinite;
+}
+
+@keyframes logoFloat{
+ 0%,100%{
+  transform:translateY(0);
+ }
+ 50%{
+  transform:translateY(-3px);
+ }
+}
+
+.brand-title{
+ color:var(--navy);
+ font-size:16px;
+ font-weight:950;
+ white-space:nowrap;
+}
+
+.brand-subtitle{
+ margin-top:2px;
+
+ color:var(--muted);
+
+ font-size:9px;
+
+ white-space:nowrap;
+}
+
+.top-actions{
+ display:flex;
+ align-items:center;
+ gap:10px;
+}
+
+.status-pill{
+ display:flex;
+ align-items:center;
+ gap:7px;
+
+ padding:7px 11px;
+
+ color:#166534;
+
+ background:#ecfdf3;
+
+ border:1px solid #bbf7d0;
+
+ border-radius:30px;
+
+ font-size:10px;
+ font-weight:800;
+}
+
+body.dark .status-pill{
+ color:#86efac;
+ background:#102d1d;
+ border-color:#1f5d37;
+}
+
+.status-dot{
+ width:7px;
+ height:7px;
+
+ border-radius:50%;
+
+ background:#22c55e;
+
+ box-shadow:
+ 0 0 0 4px rgba(34,197,94,.1);
+}
+
+/* THEME BUTTON */
+
+.theme-btn{
+ width:40px;
+ height:40px;
+
+ border:1px solid var(--border);
+
+ border-radius:10px;
+
+ color:var(--navy);
+
+ background:var(--card);
+
+ display:grid;
+ place-items:center;
+
+ font-size:17px;
+
+ transition:.25s;
+
+ box-shadow:var(--shadow);
+}
+
+.theme-btn:hover{
+ transform:
+ translateY(-3px)
+ rotate(8deg);
+
+ box-shadow:var(--shadow2);
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.main{
+ width:100%;
+ max-width:1700px;
+
+ margin:auto;
+
+ padding:
+ 20px
+ clamp(12px,2.5vw,34px)
+ 40px;
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero{
+ position:relative;
+
+ overflow:hidden;
+
+ min-height:180px;
+
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+
+ gap:25px;
+
+ padding:28px;
+
+ margin-bottom:16px;
+
+ color:#fff;
+
+ border-radius:22px;
+
+ background:
+ linear-gradient(
+  120deg,
+  #052e53 0%,
+  #084b80 48%,
+  #1478c9 100%
+ );
+
+ box-shadow:
+ 0 18px 45px rgba(7,55,99,.18);
+
+ animation:
+ heroIn .7s ease both;
+}
+
+@keyframes heroIn{
+ from{
+  opacity:0;
+  transform:translateY(15px);
+ }
+ to{
+  opacity:1;
+  transform:translateY(0);
+ }
+}
+
+.hero:before,
+.hero:after{
+ content:"";
+
+ position:absolute;
+
+ border-radius:50%;
+
+ border:1px solid rgba(255,255,255,.1);
+}
+
+.hero:before{
+ width:370px;
+ height:370px;
+
+ right:-150px;
+ top:-260px;
+}
+
+.hero:after{
+ width:240px;
+ height:240px;
+
+ right:190px;
+ bottom:-205px;
+}
+
+.hero-content{
+ position:relative;
+ z-index:2;
+}
+
+.hero h1{
+ margin:0;
+
+ font-size:
+ clamp(23px,3vw,34px);
+
+ letter-spacing:-1px;
+}
+
+.hero p{
+ max-width:720px;
+
+ margin:8px 0 0;
+
+ color:rgba(255,255,255,.76);
+
+ font-size:11px;
+
+ line-height:1.6;
+}
+
+.upload-box{
+ position:relative;
+ z-index:3;
+
+ min-width:210px;
+
+ padding:15px 20px;
+
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ justify-content:center;
+
+ border-radius:12px;
+
+ color:var(--navy);
+
+ background:#fff;
+
+ box-shadow:
+ 0 15px 35px rgba(0,0,0,.18);
+
+ transition:.25s;
+}
+
+.upload-box:hover{
+ transform:
+ translateY(-5px)
+ scale(1.02);
+
+ box-shadow:
+ 0 22px 45px rgba(0,0,0,.25);
+}
+
+.upload-title{
+ font-size:12px;
+ font-weight:950;
+}
+
+.upload-sub{
+ margin-top:4px;
+
+ color:#718096;
+
+ font-size:9px;
+}
+
+#fileInput{
+ display:none;
+}
+
+/* =========================================================
+   FILE STATUS
+========================================================= */
+
+.file-status{
+ min-height:45px;
+
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+
+ gap:15px;
+
+ padding:9px 14px;
+
+ margin-bottom:16px;
+
+ background:var(--card);
+
+ border:1px solid var(--border);
+
+ border-radius:12px;
+
+ box-shadow:var(--shadow);
+
+ font-size:10px;
+
+ transition:.35s;
+}
+
+.file-status:hover{
+ transform:translateY(-2px);
+ box-shadow:var(--shadow2);
+}
+
+.file-status-left{
+ min-width:0;
+
+ display:flex;
+ align-items:center;
+
+ gap:8px;
+}
+
+.file-status-left span:last-child{
+ overflow:hidden;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+}
+
+.file-dot{
+ width:8px;
+ height:8px;
+
+ flex:0 0 8px;
+
+ border-radius:50%;
+
+ background:#94a3b8;
+}
+
+.file-dot.active{
+ background:#16a34a;
+
+ box-shadow:
+ 0 0 0 5px rgba(22,163,74,.1);
+
+ animation:
+ pulseGreen 1.8s infinite;
+}
+
+@keyframes pulseGreen{
+ 0%,100%{
+  box-shadow:0 0 0 4px rgba(22,163,74,.08);
+ }
+ 50%{
+  box-shadow:0 0 0 8px rgba(22,163,74,.02);
+ }
+}
+
+.record-badge{
+ flex:0 0 auto;
+
+ color:var(--navy);
+
+ font-weight:950;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.error{
+ display:none;
+
+ padding:12px 15px;
+
+ margin-bottom:16px;
+
+ color:#9f1239;
+
+ background:var(--red2);
+
+ border:1px solid #fecdd3;
+
+ border-radius:12px;
+
+ font-size:11px;
+
+ line-height:1.5;
+}
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.empty{
+ min-height:470px;
+
+ display:flex;
+ flex-direction:column;
+
+ align-items:center;
+ justify-content:center;
+
+ text-align:center;
+
+ padding:30px;
+
+ background:var(--card);
+
+ border:1px solid var(--border);
+
+ border-radius:20px;
+
+ box-shadow:var(--shadow);
+
+ animation:
+ fadeUp .7s ease;
+}
+
+.empty-icon{
+ width:82px;
+ height:82px;
+
+ display:grid;
+ place-items:center;
+
+ border-radius:24px;
+
+ font-size:38px;
+
+ background:var(--blue2);
+
+ animation:
+ iconFloat 3s ease-in-out infinite;
+}
+
+@keyframes iconFloat{
+ 0%,100%{
+  transform:translateY(0);
+ }
+ 50%{
+  transform:translateY(-8px);
+ }
+}
+
+.empty h2{
+ margin:16px 0 6px;
+
+ color:var(--navy);
+
+ font-size:22px;
+}
+
+.empty p{
+ max-width:520px;
+
+ margin:0;
+
+ color:var(--muted);
+
+ font-size:11px;
+
+ line-height:1.7;
+}
+
+#dashboard{
+ display:none;
+}
+
+/* =========================================================
+   FILTER
+========================================================= */
+
+.filter-box{
+ padding:17px;
+
+ margin-bottom:16px;
+
+ background:var(--card);
+
+ border:1px solid var(--border);
+
+ border-radius:var(--radius);
+
+ box-shadow:var(--shadow);
+
+ transition:.3s;
+}
+
+.filter-box:hover{
+ box-shadow:var(--shadow2);
+}
+
+.filter-head{
+ display:flex;
+
+ align-items:center;
+
+ justify-content:space-between;
+
+ gap:15px;
+
+ margin-bottom:13px;
+}
+
+.filter-title{
+ color:var(--navy);
+
+ font-size:13px;
+ font-weight:950;
+}
+
+.filter-help{
+ color:var(--muted);
+
+ font-size:9px;
+}
+
+.filters{
+ display:grid;
+
+ grid-template-columns:
+ repeat(8,minmax(0,1fr));
+
+ gap:9px;
+
+ align-items:end;
+}
+
+.field{
+ min-width:0;
+}
+
+.field label{
+ display:block;
+
+ margin-bottom:5px;
+
+ color:#64748b;
+
+ font-size:8px;
+
+ font-weight:950;
+
+ letter-spacing:.5px;
+
+ text-transform:uppercase;
+}
+
+.field input,
+.field select{
+ width:100%;
+ height:39px;
+
+ padding:0 9px;
+
+ outline:none;
+
+ color:var(--text);
+
+ background:var(--input);
+
+ border:1px solid var(--border);
+
+ border-radius:8px;
+
+ font-size:10px;
+
+ transition:.2s;
+}
+
+.field input:focus,
+.field select:focus{
+ border-color:var(--blue);
+
+ box-shadow:
+ 0 0 0 3px rgba(18,104,173,.08);
+}
+
+.reset-btn{
+ height:39px;
+
+ padding:0 14px;
+
+ border:0;
+
+ border-radius:8px;
+
+ color:var(--navy);
+
+ background:var(--blue2);
+
+ font-size:10px;
+
+ font-weight:950;
+
+ transition:.2s;
+}
+
+.reset-btn:hover{
+ background:#d9edff;
+
+ transform:
+ translateY(-2px)
+ scale(1.02);
+}
+
+/* =========================================================
+   KPI 3D CARDS
+========================================================= */
+
+.kpi-grid{
+ display:grid;
+
+ grid-template-columns:
+ repeat(4,minmax(0,1fr));
+
+ gap:13px;
+
+ margin-bottom:16px;
+
+ perspective:1000px;
+}
+
+.kpi{
+ position:relative;
+
+ overflow:hidden;
+
+ min-width:0;
+
+ padding:17px;
+
+ background:var(--card);
+
+ border:1px solid var(--border);
+
+ border-radius:16px;
+
+ box-shadow:var(--shadow);
+
+ transition:
+ transform .35s cubic-bezier(.2,.8,.2,1),
+ box-shadow .35s;
+
+ transform-style:preserve-3d;
+}
+
+.kpi:hover{
+ transform:
+ translateY(-8px)
+ rotateX(4deg)
+ rotateY(-4deg)
+ scale(1.015);
+
+ box-shadow:
+ 0 25px 50px rgba(25,55,90,.20);
+}
+
+body.dark .kpi:hover{
+ box-shadow:
+ 0 25px 55px rgba(0,0,0,.45);
+}
+
+.kpi:after{
+ content:"";
+
+ position:absolute;
+
+ width:110px;
+ height:110px;
+
+ right:-55px;
+ top:-55px;
+
+ border-radius:50%;
+
+ opacity:.07;
+}
+
+.kpi.call:after{
+ background:var(--blue);
+}
+
+.kpi.msg:after{
+ background:var(--green);
+}
+
+.kpi.sms:after{
+ background:var(--orange);
+}
+
+.kpi.total:after{
+ background:var(--purple);
+}
+
+.kpi-top{
+ display:flex;
+
+ align-items:center;
+
+ justify-content:space-between;
+}
+
+.kpi-icon{
+ width:40px;
+ height:40px;
+
+ display:grid;
+ place-items:center;
+
+ border-radius:11px;
+
+ font-size:18px;
+
+ transform:translateZ(20px);
+
+ transition:.3s;
+}
+
+.kpi:hover .kpi-icon{
+ transform:
+ translateZ(30px)
+ rotate(-8deg)
+ scale(1.1);
+}
+
+.call .kpi-icon{
+ color:var(--blue);
+ background:var(--blue2);
+}
+
+.msg .kpi-icon{
+ color:var(--green);
+ background:var(--green2);
+}
+
+.sms .kpi-icon{
+ color:#b36c00;
+ background:var(--orange2);
+}
+
+.total .kpi-icon{
+ color:var(--purple);
+ background:var(--purple2);
+}
+
+.kpi-label{
+ margin-top:12px;
+
+ color:#718096;
+
+ font-size:8px;
+
+ font-weight:950;
+
+ letter-spacing:.6px;
+}
+
+.kpi-value{
+ margin-top:4px;
+
+ color:var(--text);
+
+ font-size:
+ clamp(20px,2vw,28px);
+
+ font-weight:950;
+
+ letter-spacing:-.6px;
+
+ overflow:hidden;
+
+ text-overflow:ellipsis;
+
+ white-space:nowrap;
+}
+
+.kpi-sub{
+ margin-top:4px;
+
+ color:#94a3b8;
+
+ font-size:9px;
+}
+
+/* =========================================================
+   MINI CARDS
+========================================================= */
+
+.mini-grid{
+ display:grid;
+
+ grid-template-columns:
+ repeat(4,minmax(0,1fr));
+
+ gap:13px;
+
+ margin-bottom:16px;
+}
+
+.mini-card{
+ padding:14px 16px;
+
+ background:var(--card);
+
+ border:1px solid var(--border);
+
+ border-radius:13px;
+
+ box-shadow:var(--shadow);
+
+ transition:.3s;
+}
+
+.mini-card:hover{
+ transform:
+ translateY(-6px)
+ rotateX(2deg);
+
+ box-shadow:var(--shadow2);
+}
+
+.mini-label{
+ color:#718096;
+
+ font-size:8px;
+
+ font-weight:950;
+
+ letter-spacing:.5px;
+}
+
+.mini-value{
+ margin-top:5px;
+
+ color:var(--navy);
+
+ font-size:16px;
+
+ font-weight:950;
+
+ overflow:hidden;
+
+ text-overflow:ellipsis;
+
+ white-space:nowrap;
+}
+
+/* =========================================================
+   PANELS
+========================================================= */
+
+.chart-grid{
+ display:grid;
+
+ grid-template-columns:
+ minmax(0,2fr)
+ minmax(320px,1fr);
+
+ gap:16px;
+
+ margin-bottom:16px;
+}
+
+.panel{
+ min-width:0;
+
+ padding:17px;
+
+ background:var(--card);
+
+ border:1px solid var(--border);
+
+ border-radius:16px;
+
+ box-shadow:var(--shadow);
+
+ transition:.3s;
+}
+
+.panel:hover{
+ transform:translateY(-3px);
+
+ box-shadow:var(--shadow2);
+}
+
+.panel-header{
+ display:flex;
+
+ align-items:flex-start;
+
+ justify-content:space-between;
+
+ gap:15px;
+}
+
+.panel-title{
+ color:var(--navy);
+
+ font-size:13px;
+
+ font-weight:950;
+}
+
+.panel-sub{
+ margin-top:3px;
+
+ color:var(--muted);
+
+ font-size:9px;
+}
+
+.chart-wrap{
+ position:relative;
+
+ width:100%;
+
+ height:310px;
+
+ margin-top:10px;
+}
+
+.secondary-grid{
+ display:grid;
+
+ grid-template-columns:
+ repeat(3,minmax(0,1fr));
+
+ gap:16px;
+
+ margin-bottom:16px;
+}
+
+.secondary-grid .chart-wrap{
+ height:260px;
+}
+
+/* =========================================================
+   TABLE CONTAINER
+========================================================= */
+
+.table-panel{
+ width:100%;
+
+ margin-bottom:16px;
+
+ overflow:hidden;
+
+ background:var(--card);
+
+ border:1px solid var(--border);
+
+ border-radius:16px;
+
+ box-shadow:var(--shadow);
+
+ transition:.3s;
+
+ animation:fadeUp .6s ease both;
+}
+
+.table-panel:hover{
+ box-shadow:var(--shadow2);
+}
+
+.table-head{
+ min-height:65px;
+
+ display:flex;
+
+ align-items:center;
+
+ justify-content:space-between;
+
+ gap:15px;
+
+ padding:13px 17px;
+
+ border-bottom:1px solid var(--border);
+}
+
+.table-title{
+ color:var(--navy);
+
+ font-size:13px;
+
+ font-weight:950;
+}
+
+.table-sub{
+ margin-top:3px;
+
+ color:var(--muted);
+
+ font-size:9px;
+}
+
+.table-actions{
+ display:flex;
+
+ gap:8px;
+}
+
+.action-btn{
+ padding:8px 12px;
+
+ border:0;
+
+ border-radius:7px;
+
+ color:white;
+
+ background:#087f5b;
+
+ font-size:10px;
+
+ font-weight:950;
+
+ transition:.2s;
+}
+
+.action-btn:hover{
+ transform:
+ translateY(-3px)
+ scale(1.02);
+
+ box-shadow:
+ 0 10px 20px rgba(8,127,91,.25);
+}
+
+/* SMALL CONTAINER + BOTH SCROLLBARS */
+
+.table-scroll{
+ width:100%;
+
+ max-width:100%;
+
+ height:280px;
+
+ overflow-x:auto;
+ overflow-y:auto;
+
+ -webkit-overflow-scrolling:touch;
+
+ scrollbar-width:thin;
+
+ scrollbar-color:
+ #9aa9b8
+ #edf2f7;
+}
+
+.table-scroll::-webkit-scrollbar{
+ width:8px;
+ height:8px;
+}
+
+.table-scroll::-webkit-scrollbar-track{
+ background:#edf2f7;
+}
+
+.table-scroll::-webkit-scrollbar-thumb{
+ background:#9aa9b8;
+
+ border-radius:20px;
+}
+
+.table-scroll::-webkit-scrollbar-thumb:hover{
+ background:#64748b;
+}
+
+body.dark .table-scroll::-webkit-scrollbar-track{
+ background:#172235;
+}
+
+body.dark .table-scroll::-webkit-scrollbar-thumb{
+ background:#475569;
+}
+
+table{
+ width:100%;
+
+ min-width:950px;
+
+ border-collapse:collapse;
+}
+
+th{
+ position:sticky;
+
+ top:0;
+
+ z-index:5;
+
+ padding:10px 12px;
+
+ color:white;
+
+ background:var(--table-head);
+
+ text-align:right;
+
+ font-size:9px;
+
+ font-weight:900;
+
+ white-space:nowrap;
+}
+
+th:first-child,
+td:first-child{
+ text-align:left;
+}
+
+td{
+ padding:9px 12px;
+
+ color:var(--text);
+
+ border-bottom:1px solid var(--border);
+
+ text-align:right;
+
+ font-size:9.5px;
+
+ white-space:nowrap;
+}
+
+tbody tr{
+ transition:.18s;
+}
+
+tbody tr:hover{
+ background:rgba(20,120,201,.07);
+
+ transform:scale(1.001);
+}
+
+.total-row{
+ background:rgba(20,120,201,.08);
+}
+
+.total-row td{
+ color:var(--navy);
+
+ font-weight:950;
+}
+
+.no-data{
+ padding:35px 15px!important;
+
+ text-align:center!important;
+
+ color:#94a3b8!important;
+}
+
+/* =========================================================
+   BADGES
+========================================================= */
+
+.badge{
+ display:inline-flex;
+
+ align-items:center;
+
+ padding:4px 8px;
+
+ border-radius:30px;
+
+ font-size:8px;
+
+ font-weight:950;
+}
+
+.badge-call{
+ color:#1268ad;
+
+ background:#eaf4ff;
+}
+
+.badge-msg{
+ color:#15803d;
+
+ background:#eaf8ef;
+}
+
+.badge-sms{
+ color:#a16207;
+
+ background:#fff6e3;
+}
+
+.badge-other{
+ color:#64748b;
+
+ background:#f1f5f9;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.footer{
+ padding:10px;
+
+ color:#94a3b8;
+
+ text-align:center;
+
+ font-size:9px;
+}
+
+/* =========================================================
+   LOADER
+========================================================= */
+
+.loader{
+ position:fixed;
+
+ inset:0;
+
+ z-index:9999;
+
+ display:none;
+
+ place-items:center;
+
+ background:
+ rgba(7,55,99,.25);
+
+ backdrop-filter:blur(7px);
+}
+
+.loader-card{
+ width:min(350px,90vw);
+
+ padding:30px;
+
+ text-align:center;
+
+ background:var(--card);
+
+ color:var(--text);
+
+ border:1px solid var(--border);
+
+ border-radius:18px;
+
+ box-shadow:
+ 0 25px 60px rgba(0,0,0,.2);
+
+ animation:
+ loaderIn .35s ease;
+}
+
+@keyframes loaderIn{
+ from{
+  opacity:0;
+  transform:
+  translateY(15px)
+  scale(.95);
+ }
+ to{
+  opacity:1;
+  transform:
+  translateY(0)
+  scale(1);
+ }
+}
+
+.spinner{
+ width:45px;
+ height:45px;
+
+ margin:0 auto 13px;
+
+ border:4px solid #dbeafe;
+
+ border-top-color:var(--blue);
+
+ border-radius:50%;
+
+ animation:
+ spin .75s linear infinite;
+}
+
+@keyframes spin{
+ to{
+  transform:rotate(360deg);
+ }
+}
+
+/* =========================================================
+   GENERAL ANIMATION
+========================================================= */
+
+@keyframes fadeUp{
+ from{
+  opacity:0;
+  transform:translateY(15px);
+ }
+ to{
+  opacity:1;
+  transform:translateY(0);
+ }
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:1250px){
+
+ .filters{
+  grid-template-columns:
+  repeat(4,minmax(0,1fr));
+ }
+
+ .mini-grid{
+  grid-template-columns:
+  repeat(2,minmax(0,1fr));
+ }
+}
+
+@media(max-width:1050px){
+
+ .kpi-grid{
+  grid-template-columns:
+  repeat(2,minmax(0,1fr));
+ }
+
+ .chart-grid{
+  grid-template-columns:1fr;
+ }
+
+ .secondary-grid{
+  grid-template-columns:
+  repeat(2,minmax(0,1fr));
+ }
+}
+
+@media(max-width:760px){
+
+ .topbar{
+  height:58px;
+ }
+
+ .brand-subtitle,
+ .status-pill{
+  display:none;
+ }
+
+ .main{
+  padding:
+  12px
+  10px
+  25px;
+ }
+
+ .hero{
+  flex-direction:column;
+
+  align-items:stretch;
+
+  padding:20px;
+ }
+
+ .upload-box{
+  width:100%;
+ }
+
+ .filters{
+  grid-template-columns:
+  repeat(2,minmax(0,1fr));
+ }
+
+ .secondary-grid{
+  grid-template-columns:1fr;
+ }
+
+ .file-status{
+  align-items:flex-start;
+
+  flex-direction:column;
+ }
+
+ .table-scroll{
+  height:250px;
+ }
+}
+
+@media(max-width:500px){
+
+ .brand-title{
+  font-size:14px;
+ }
+
+ .hero h1{
+  font-size:23px;
+ }
+
+ .filters,
+ .kpi-grid,
+ .mini-grid{
+  grid-template-columns:1fr;
+ }
+
+ .chart-wrap{
+  height:270px;
+ }
+
+ .table-head{
+  align-items:flex-start;
+
+  flex-direction:column;
+ }
+
+ .table-actions{
+  width:100%;
+ }
+
+ .action-btn{
+  flex:1;
+ }
+
+ .table-scroll{
+  height:230px;
+ }
+}
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+
+<div class="topbar-inner">
+
+<div class="brand">
+
+<div class="logo">₹</div>
+
+<div>
+
+<div class="brand-title">
+Communication Expense Tracker
+</div>
+
+<div class="brand-subtitle">
+Call • WhatsApp • SMS Expense Monitoring
+</div>
+
+</div>
+
+</div>
+
+<div class="top-actions">
+
+<div class="status-pill">
+<span class="status-dot"></span>
+Dashboard Ready
+</div>
+
+<button
+ id="themeBtn"
+ class="theme-btn"
+ title="Toggle Light / Dark Mode">
+🌙
+</button>
+
+</div>
+
+</div>
+
+</header>
+
+<main class="main">
+
+<section class="hero">
+
+<div class="hero-content">
+
+<h1>
+Communication Expense Dashboard
+</h1>
+
+<p>
+Upload your Excel report and monitor daily, monthly and yearly
+communication expenses with interactive filters, charts,
+category analysis and transaction-level tracking.
+</p>
+
+</div>
+
+<label class="upload-box">
+
+<div class="upload-title">
+📂 Upload Excel
+</div>
+
+<div class="upload-sub">
+XLSX • XLS • XLSM • CSV
+</div>
+
+<input
+ id="fileInput"
+ type="file"
+ accept=".xlsx,.xls,.xlsm,.csv">
+
+</label>
+
+</section>
+
+<div class="file-status">
+
+<div class="file-status-left">
+
+<span id="fileDot" class="file-dot"></span>
+
+<span id="statusText">
+Please upload your communication expense Excel file
+</span>
+
+</div>
+
+<div
+ id="recordCount"
+ class="record-badge">
+0 records
+</div>
+
+</div>
+
+<div id="error" class="error"></div>
+
+<section id="empty" class="empty">
+
+<div class="empty-icon">
+📊
+</div>
+
+<h2>
+Start Expense Tracking
+</h2>
+
+<p>
+Upload your Excel file. The dashboard will automatically identify
+Date, Name, Campaign, Type and Expenses columns and convert
+OBDTRANS → Call, WhatsApp → Message and VoiceAndSMS → SMS.
+</p>
+
+</section>
+
+<div id="dashboard">
+
+<!-- =====================================================
+     FILTERS
+====================================================== -->
+
+<section class="filter-box">
+
+<div class="filter-head">
+
+<div class="filter-title">
+🎛 Smart Filters
+</div>
+
+<div class="filter-help">
+All cards, charts and tables update instantly
+</div>
+
+</div>
+
+<div class="filters">
+
+<div class="field">
+<label>From Date</label>
+<input type="date" id="fromDate">
+</div>
+
+<div class="field">
+<label>To Date</label>
+<input type="date" id="toDate">
+</div>
+
+<div class="field">
+<label>Year</label>
+<select id="yearFilter">
+<option value="all">All Years</option>
+</select>
+</div>
+
+<div class="field">
+<label>Month</label>
+<select id="monthFilter">
+<option value="all">All Months</option>
+</select>
+</div>
+
+<div class="field">
+<label>Category</label>
+
+<select id="categoryFilter">
+
+<option value="all">
+All Categories
+</option>
+
+<option value="call">
+📞 Call
+</option>
+
+<option value="msg">
+💬 WhatsApp / Message
+</option>
+
+<option value="sms">
+📱 SMS
+</option>
+
+<option value="other">
+Other
+</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>Name</label>
+
+<select id="nameFilter">
+
+<option value="all">
+All Names
+</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>Search</label>
+
+<input
+ id="search"
+ type="text"
+ placeholder="Campaign / name / type...">
+
+</div>
+
+<button
+ id="resetBtn"
+ class="reset-btn">
+
+↻ Reset
+
+</button>
+
+</div>
+
+</section>
+
+<!-- =====================================================
+     KPI
+====================================================== -->
+
+<section class="kpi-grid">
+
+<div class="kpi call">
+
+<div class="kpi-top">
+
+<div class="kpi-icon">
+📞
+</div>
+
+</div>
+
+<div class="kpi-label">
+CALL EXPENSE
+</div>
+
+<div
+ id="callTotal"
+ class="kpi-value">
+₹0.000
+</div>
+
+<div
+ id="callRows"
+ class="kpi-sub">
+0 transactions
+</div>
+
+</div>
+
+<div class="kpi msg">
+
+<div class="kpi-top">
+
+<div class="kpi-icon">
+💬
+</div>
+
+</div>
+
+<div class="kpi-label">
+WHATSAPP / MESSAGE
+</div>
+
+<div
+ id="msgTotal"
+ class="kpi-value">
+₹0.000
+</div>
+
+<div
+ id="msgRows"
+ class="kpi-sub">
+0 transactions
+</div>
+
+</div>
+
+<div class="kpi sms">
+
+<div class="kpi-top">
+
+<div class="kpi-icon">
+📱
+</div>
+
+</div>
+
+<div class="kpi-label">
+SMS EXPENSE
+</div>
+
+<div
+ id="smsTotal"
+ class="kpi-value">
+₹0.000
+</div>
+
+<div
+ id="smsRows"
+ class="kpi-sub">
+0 transactions
+</div>
+
+</div>
+
+<div class="kpi total">
+
+<div class="kpi-top">
+
+<div class="kpi-icon">
+💎
+</div>
+
+</div>
+
+<div class="kpi-label">
+TOTAL EXPENSE
+</div>
+
+<div
+ id="grandTotal"
+ class="kpi-value">
+₹0.000
+</div>
+
+<div
+ id="totalRows"
+ class="kpi-sub">
+0 transactions
+</div>
+
+</div>
+
+</section>
+
+<!-- =====================================================
+     MINI STATS
+====================================================== -->
+
+<section class="mini-grid">
+
+<div class="mini-card">
+
+<div class="mini-label">
+ACTIVE DAYS
+</div>
+
+<div
+ id="activeDays"
+ class="mini-value">
+0
+</div>
+
+</div>
+
+<div class="mini-card">
+
+<div class="mini-label">
+AVERAGE DAILY EXPENSE
+</div>
+
+<div
+ id="avgDaily"
+ class="mini-value">
+₹0.000
+</div>
+
+</div>
+
+<div class="mini-card">
+
+<div class="mini-label">
+HIGHEST EXPENSE DAY
+</div>
+
+<div
+ id="highestDay"
+ class="mini-value">
+-
+</div>
+
+</div>
+
+<div class="mini-card">
+
+<div class="mini-label">
+HIGHEST CATEGORY
+</div>
+
+<div
+ id="highestCategory"
+ class="mini-value">
+-
+</div>
+
+</div>
+
+</section>
+
+<!-- =====================================================
+     CHARTS
+====================================================== -->
+
+<section class="chart-grid">
+
+<div class="panel">
+
+<div class="panel-header">
+
+<div>
+
+<div class="panel-title">
+📈 Expense Trend
+</div>
+
+<div class="panel-sub">
+Daily Call, Message and SMS expense
+</div>
+
+</div>
+
+</div>
+
+<div class="chart-wrap">
+
+<canvas id="trendChart"></canvas>
+
+</div>
+
+</div>
+
+<div class="panel">
+
+<div class="panel-title">
+🍩 Expense Distribution
+</div>
+
+<div class="panel-sub">
+Category-wise expense share
+</div>
+
+<div class="chart-wrap">
+
+<canvas id="donutChart"></canvas>
+
+</div>
+
+</div>
+
+</section>
+
+<section class="secondary-grid">
+
+<div class="panel">
+
+<div class="panel-title">
+📊 Monthly Expense
+</div>
+
+<div class="panel-sub">
+Month-wise total expense
+</div>
+
+<div class="chart-wrap">
+
+<canvas id="monthlyChart"></canvas>
+
+</div>
+
+</div>
+
+<div class="panel">
+
+<div class="panel-title">
+🏆 Top Campaigns
+</div>
+
+<div class="panel-sub">
+Highest expense campaigns
+</div>
+
+<div class="chart-wrap">
+
+<canvas id="campaignChart"></canvas>
+
+</div>
+
+</div>
+
+<div class="panel">
+
+<div class="panel-title">
+👤 Expense by Name
+</div>
+
+<div class="panel-sub">
+Top names by total expense
+</div>
+
+<div class="chart-wrap">
+
+<canvas id="nameChart"></canvas>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- =====================================================
+     DAILY SUMMARY
+====================================================== -->
+
+<section class="table-panel">
+
+<div class="table-head">
+
+<div>
+
+<div class="table-title">
+📅 Daily Expense Summary
+</div>
+
+<div class="table-sub">
+Filtered date-wise Call / Message / SMS expense
+</div>
+
+</div>
+
+<div class="table-actions">
+
+<button
+ id="exportDailyBtn"
+ class="action-btn">
+⬇ Export Summary
+</button>
+
+</div>
+
+</div>
+
+<div class="table-scroll">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+Date
+</th>
+
+<th>
+📞 Call
+</th>
+
+<th>
+💬 Message
+</th>
+
+<th>
+📱 SMS
+</th>
+
+<th>
+💰 Total
+</th>
+
+</tr>
+
+</thead>
+
+<tbody id="dailyTable"></tbody>
+
+</table>
+
+</div>
+
+</section>
+
+<!-- =====================================================
+     TRANSACTION DETAILS
+====================================================== -->
+
+<section class="table-panel">
+
+<div class="table-head">
+
+<div>
+
+<div class="table-title">
+📋 Transaction Details
+</div>
+
+<div
+ id="transactionInfo"
+ class="table-sub">
+No data
+</div>
+
+</div>
+
+<div class="table-actions">
+
+<button
+ id="exportTransactionBtn"
+ class="action-btn">
+⬇ Export Transactions
+</button>
+
+</div>
+
+</div>
+
+<div class="table-scroll">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Date</th>
+<th>Name</th>
+<th>Campaign</th>
+<th>Type</th>
+<th>Category</th>
+<th>Count Data</th>
+<th>Delivered</th>
+<th>Time</th>
+<th>Pulse</th>
+<th>Charge</th>
+<th>Expense</th>
+
+</tr>
+
+</thead>
+
+<tbody id="transactionTable"></tbody>
+
+</table>
+
+</div>
+
+</section>
+
+</div>
+
+<div class="footer">
+
+Communication Expense Tracker • Excel Powered Analytics
+
+</div>
+
+</main>
+
+<!-- =====================================================
+     LOADER
+====================================================== -->
+
+<div
+ id="loader"
+ class="loader">
+
+<div class="loader-card">
+
+<div class="spinner"></div>
+
+<strong>
+Processing Excel Data
+</strong>
+
+<div
+ style="
+ margin-top:6px;
+ color:var(--muted);
+ font-size:10px;
+">
+
+Reading and analysing your expense report...
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let rawRows=[];
+let columns={};
+
+let dailyData={};
+
+let currentFilteredRows=[];
+
+let trendChart=null;
+let donutChart=null;
+let monthlyChart=null;
+let campaignChart=null;
+let nameChart=null;
+
+let detectedDateMode="MDY";
+
+const $=id=>document.getElementById(id);
+
+/* =========================================================
+   THEME
+========================================================= */
+
+const savedTheme=
+ localStorage.getItem("communicationTheme");
+
+if(savedTheme==="dark"){
+ document.body.classList.add("dark");
+ $("themeBtn").textContent="☀️";
+}
+
+$("themeBtn").addEventListener(
+ "click",
+ toggleTheme
+);
+
+function toggleTheme(){
+
+ document.body.classList.toggle("dark");
+
+ const dark=
+  document.body.classList.contains("dark");
+
+ $("themeBtn").textContent=
+  dark?"☀️":"🌙";
+
+ localStorage.setItem(
+  "communicationTheme",
+  dark?"dark":"light"
+ );
+
+ if(rawRows.length){
+  setTimeout(
+   ()=>renderCharts(getCurrentTotals()),
+   100
+  );
+ }
+}
+
+function getCurrentTotals(){
+
+ const totals={
+  call:0,
+  msg:0,
+  sms:0,
+  other:0
+ };
+
+ currentFilteredRows.forEach(row=>{
+
+  const category=getCategory(row);
+
+  totals[category]+=
+   numberValue(row[columns.expense]);
+
+ });
+
+ return totals;
+}
+
+/* =========================================================
+   FILE UPLOAD
+========================================================= */
+
+$("fileInput")
+ .addEventListener(
+  "change",
+  loadExcel
+ );
+
+document
+ .querySelector(".upload-box")
+ .addEventListener(
+  "click",
+  function(e){
+
+   if(e.target.id!=="fileInput")
+    $("fileInput").click();
+
+  }
+ );
+
+async function loadExcel(event){
+
+ const file=
+  event.target.files[0];
+
+ if(!file)return;
+
+ showLoader(true);
+
+ hideError();
+
+ try{
+
+  if(typeof XLSX==="undefined")
+   throw new Error(
+    "Excel library load nahi hui. Internet connection check karein."
+   );
+
+  const buffer=
+   await file.arrayBuffer();
+
+  const workbook=
+   XLSX.read(
+    buffer,
+    {
+     type:"array",
+     raw:true,
+     cellDates:false
+    }
+   );
+
+  if(!workbook.SheetNames.length)
+   throw new Error(
+    "Workbook mein koi sheet nahi mili."
+   );
+
+  const sheet=
+   workbook.Sheets[
+    workbook.SheetNames[0]
+   ];
+
+  const matrix=
+   XLSX.utils.sheet_to_json(
+    sheet,
+    {
+     header:1,
+     raw:true,
+     defval:""
+    }
+   );
+
+  if(matrix.length<2)
+   throw new Error(
+    "Excel mein header/data rows nahi mili."
+   );
+
+  const headerIndex=
+   findHeaderRow(matrix);
+
+  if(headerIndex===-1)
+   throw new Error(
+    "Date / Type / Expenses headers detect nahi ho sake."
+   );
+
+  const headers=
+   matrix[headerIndex]
+   .map(v=>String(v??"").trim());
+
+  rawRows=
+   matrix
+   .slice(headerIndex+1)
+   .filter(row=>
+    row.some(
+     v=>
+      v!=="" &&
+      v!==null &&
+      v!==undefined
+    )
+   )
+   .map(row=>{
+
+    const obj={};
+
+    headers.forEach(
+     (header,index)=>{
+
+      if(header)
+       obj[header]=
+        row[index]??"";
+
+     }
+    );
+
+    return obj;
+
+   });
+
+  if(!rawRows.length)
+   throw new Error(
+    "Excel mein usable transaction records nahi mile."
+   );
+
+  columns=
+   detectColumns(rawRows);
+
+  validateColumns();
+
+  detectedDateMode=
+   detectDateMode(rawRows);
+
+  const before=
+   rawRows.length;
+
+  rawRows=
+   rawRows.filter(
+    row=>
+     !!parseDate(
+      row[columns.date]
+     )
+   );
+
+  if(!rawRows.length)
+   throw new Error(
+    "Valid date wali transaction rows nahi mili."
+   );
+
+  populateFilters();
+
+  $("empty").style.display="none";
+
+  $("dashboard").style.display="block";
+
+  $("statusText").textContent=
+   file.name+
+   " • "+
+   workbook.SheetNames[0]+
+   " • "+
+   (before-rawRows.length)+
+   " invalid date rows ignored";
+
+  $("fileDot")
+   .classList.add("active");
+
+  updateDashboard();
+
+ }catch(error){
+
+  console.error(
+   "Dashboard Error:",
+   error
+  );
+
+  showError(
+   error.message||
+   "Excel process karte waqt error aaya."
+  );
+
+ }finally{
+
+  showLoader(false);
+
+ }
+
+}
+
+/* =========================================================
+   HEADER DETECTION
+========================================================= */
+
+function findHeaderRow(matrix){
+
+ const maxRows=
+  Math.min(
+   matrix.length,
+   20
+  );
+
+ for(
+  let i=0;
+  i<maxRows;
+  i++
+ ){
+
+  const row=
+   matrix[i].map(normalize);
+
+  const hasDate=
+   row.some(
+    v=>
+     [
+      "date",
+      "transactiondate",
+      "createddate",
+      "datetime"
+     ].includes(v)
+   );
+
+  const hasType=
+   row.some(
+    v=>
+     [
+      "type",
+      "servicetype",
+      "transactiontype",
+      "communicationtype"
+     ].includes(v)
+   );
+
+  const hasExpense=
+   row.some(
+    v=>
+     [
+      "expense",
+      "expenses",
+      "expence",
+      "expences",
+      "totalexpense",
+      "totalexpenses",
+      "amount"
+     ].includes(v)
+   );
+
+  if(
+   hasDate &&
+   (hasType||hasExpense)
+  )
+   return i;
+
+ }
+
+ return -1;
+}
+
+function normalize(value){
+
+ return String(value??"")
+  .toLowerCase()
+  .trim()
+  .replace(
+   /[\s_\-\/]+/g,
+   ""
+  )
+  .replace(
+   /[()&]/g,
+   ""
+  );
+
+}
+
+function findColumn(
+ headers,
+ names
+){
+
+ const normalizedHeaders=
+  headers.map(
+   header=>({
+    original:header,
+    normalized:normalize(header)
+   })
+  );
+
+ for(
+  const name of names
+ ){
+
+  const wanted=
+   normalize(name);
+
+  const exact=
+   normalizedHeaders.find(
+    x=>
+     x.normalized===wanted
+   );
+
+  if(exact)
+   return exact.original;
+
+ }
+
+ for(
+  const name of names
+ ){
+
+  const wanted=
+   normalize(name);
+
+  const partial=
+   normalizedHeaders.find(
+    x=>
+     x.normalized.includes(wanted)
+   );
+
+  if(partial)
+   return partial.original;
+
+ }
+
+ return null;
+}
+
+/* =========================================================
+   COLUMN DETECTION
+========================================================= */
+
+function detectColumns(rows){
+
+ const headers=
+  Object.keys(
+   rows[0]||{}
+  );
+
+ return{
+
+  date:
+   findColumn(
+    headers,
+    [
+     "date",
+     "transaction date",
+     "created date",
+     "date & time",
+     "datetime"
+    ]
+   ),
+
+  name:
+   findColumn(
+    headers,
+    [
+     "name",
+     "customer name",
+     "client name",
+     "customer"
+    ]
+   ),
+
+  campaign:
+   findColumn(
+    headers,
+    [
+     "campaign name",
+     "campaign",
+     "campaignname"
+    ]
+   ),
+
+  count:
+   findColumn(
+    headers,
+    [
+     "count data",
+     "countdata",
+     "count",
+     "data count"
+    ]
+   ),
+
+  delivered:
+   findColumn(
+    headers,
+    [
+     "delivered",
+     "delivery",
+     "delivered count"
+    ]
+   ),
+
+  time:
+   findColumn(
+    headers,
+    [
+     "time",
+     "schedule time"
+    ]
+   ),
+
+  schedule:
+   findColumn(
+    headers,
+    [
+     "schedule"
+    ]
+   ),
+
+  type:
+   findColumn(
+    headers,
+    [
+     "type",
+     "service type",
+     "transaction type",
+     "communication type"
+    ]
+   ),
+
+  expense:
+   findColumn(
+    headers,
+    [
+     "expenses",
+     "expense",
+     "expences",
+     "expence",
+     "total expenses",
+     "total expense",
+     "amount"
+    ]
+   ),
+
+  pulse:
+   findColumn(
+    headers,
+    [
+     "pulse"
+    ]
+   ),
+
+  charge:
+   findColumn(
+    headers,
+    [
+     "charge",
+     "rate",
+     "per unit charge"
+    ]
+   )
+
+ };
+
+}
+
+function validateColumns(){
+
+ const missing=[];
+
+ if(!columns.date)
+  missing.push("Date");
+
+ if(!columns.type)
+  missing.push("Type");
+
+ if(!columns.expense)
+  missing.push("Expenses");
+
+ if(missing.length){
+
+  throw new Error(
+   "Required columns nahi mili: "+
+   missing.join(", ")+
+   ". Expected headers: date, type, expenses."
+  );
+
+ }
+
+}
+
+/* =========================================================
+   DATE
+========================================================= */
+
+function detectDateMode(rows){
+
+ let dmyEvidence=0;
+ let mdyEvidence=0;
+
+ rows
+ .slice(0,5000)
+ .forEach(row=>{
+
+  const value=
+   row[columns.date];
+
+  if(typeof value!=="string")
+   return;
+
+  const match=
+   value.trim().match(
+    /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/
+   );
+
+  if(!match)
+   return;
+
+  const a=
+   Number(match[1]);
+
+  const b=
+   Number(match[2]);
+
+  if(a>12)
+   dmyEvidence++;
+
+  if(b>12)
+   mdyEvidence++;
+
+ });
+
+ return dmyEvidence>mdyEvidence
+  ?"DMY"
+  :"MDY";
+
+}
+
+function parseDate(value){
+
+ if(
+  value===null||
+  value===undefined||
+  value===""
+ )
+  return null;
+
+ if(value instanceof Date){
+
+  if(
+   !Number.isNaN(
+    value.getTime()
+   )
+  ){
+
+   return new Date(
+    value.getFullYear(),
+    value.getMonth(),
+    value.getDate()
+   );
+
+  }
+
+ }
+
+ if(
+  typeof value==="number" &&
+  Number.isFinite(value)
+ ){
+
+  if(
+   XLSX.SSF &&
+   XLSX.SSF.parse_date_code
+  ){
+
+   const decoded=
+    XLSX.SSF.parse_date_code(
+     value
+    );
+
+   if(
+    decoded &&
+    decoded.y &&
+    decoded.m &&
+    decoded.d
+   ){
+
+    return safeDate(
+     decoded.y,
+     decoded.m,
+     decoded.d
+    );
+
+   }
+
+  }
+
+ }
+
+ const text=
+  String(value).trim();
+
+ let match=
+  text.match(
+   /^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/
+  );
+
+ if(match){
+
+  return safeDate(
+   Number(match[1]),
+   Number(match[2]),
+   Number(match[3])
+  );
+
+ }
+
+ match=
+  text.match(
+   /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/
+  );
+
+ if(match){
+
+  const a=
+   Number(match[1]);
+
+  const b=
+   Number(match[2]);
+
+  const year=
+   Number(match[3]);
+
+  let day;
+  let month;
+
+  if(a>12){
+
+   day=a;
+   month=b;
+
+  }
+  else if(b>12){
+
+   month=a;
+   day=b;
+
+  }
+  else if(
+   detectedDateMode==="DMY"
+  ){
+
+   day=a;
+   month=b;
+
+  }
+  else{
+
+   month=a;
+   day=b;
+
+  }
+
+  return safeDate(
+   year,
+   month,
+   day
+  );
+
+ }
+
+ const native=
+  new Date(text);
+
+ if(
+  !Number.isNaN(
+   native.getTime()
+  )
+ ){
+
+  return new Date(
+   native.getFullYear(),
+   native.getMonth(),
+   native.getDate()
+  );
+
+ }
+
+ return null;
+}
+
+function safeDate(
+ year,
+ month,
+ day
+){
+
+ const date=
+  new Date(
+   year,
+   month-1,
+   day
+  );
+
+ if(
+  date.getFullYear()!==year||
+  date.getMonth()!==month-1||
+  date.getDate()!==day
+ )
+  return null;
+
+ return date;
+}
+
+function dateKey(date){
+
+ return[
+  date.getFullYear(),
+  String(
+   date.getMonth()+1
+  ).padStart(2,"0"),
+  String(
+   date.getDate()
+  ).padStart(2,"0")
+ ].join("-");
+
+}
+
+function monthKey(date){
+
+ return[
+  date.getFullYear(),
+  String(
+   date.getMonth()+1
+  ).padStart(2,"0")
+ ].join("-");
+
+}
+
+function formatDate(date){
+
+ if(!date)
+  return "-";
+
+ return(
+  String(
+   date.getDate()
+  ).padStart(2,"0")
+  +"-"+
+  String(
+   date.getMonth()+1
+  ).padStart(2,"0")
+  +"-"+
+  date.getFullYear()
+ );
+
+}
+
+function keyToDate(key){
+
+ const parts=
+  key.split("-").map(Number);
+
+ return new Date(
+  parts[0],
+  parts[1]-1,
+  parts[2]||1
+ );
+
+}
+
+/* =========================================================
+   IMPORTANT TIME FORMAT
+   12 HOUR FORMAT
+   AM / PM HIDDEN
+========================================================= */
+
+function formatTime12NoAMPM(value){
+
+ if(
+  value===null||
+  value===undefined||
+  value===""
+ )
+  return "-";
+
+ /* Excel decimal time */
+ if(
+  typeof value==="number" &&
+  value>=0 &&
+  value<1
+ ){
+
+  const totalMinutes=
+   Math.round(
+    value*24*60
+   );
+
+  let hours=
+   Math.floor(
+    totalMinutes/60
+   );
+
+  const minutes=
+   totalMinutes%60;
+
+  hours=
+   hours%12;
+
+  if(hours===0)
+   hours=12;
+
+  return(
+   String(hours).padStart(2,"0")
+   +":"+
+   String(minutes).padStart(2,"0")
+  );
+
+ }
+
+ let text=
+  String(value).trim();
+
+ /*
+   2:30 PM
+   02:30 PM
+   2:30:45 PM
+ */
+
+ const ampm=
+  text.match(
+   /^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)$/i
+  );
+
+ if(ampm){
+
+  let hours=
+   Number(ampm[1]);
+
+  const minutes=
+   Number(ampm[2]);
+
+  /*
+   IMPORTANT:
+   We convert PM to 12-hour numeric value
+   but DO NOT DISPLAY AM/PM.
+  */
+
+  hours=
+   hours%12;
+
+  if(hours===0)
+   hours=12;
+
+  return(
+   String(hours).padStart(2,"0")
+   +":"+
+   String(minutes).padStart(2,"0")
+  );
+
+ }
+
+ /*
+   HH:mm
+   HH:mm:ss
+ */
+
+ const hms=
+  text.match(
+   /^(\d{1,2}):(\d{2})(?::\d{2})?$/
+  );
+
+ if(hms){
+
+  let hours=
+   Number(hms[1]);
+
+  const minutes=
+   Number(hms[2]);
+
+  hours=
+   hours%12;
+
+  if(hours===0)
+   hours=12;
+
+  return(
+   String(hours).padStart(2,"0")
+   +":"+
+   String(minutes).padStart(2,"0")
+  );
+
+ }
+
+ /*
+   Date object / datetime string
+ */
+
+ const parsed=
+  new Date(text);
+
+ if(
+  !Number.isNaN(
+   parsed.getTime()
+  )
+ ){
+
+  let hours=
+   parsed.getHours();
+
+  const minutes=
+   parsed.getMinutes();
+
+  hours=
+   hours%12;
+
+  if(hours===0)
+   hours=12;
+
+  return(
+   String(hours).padStart(2,"0")
+   +":"+
+   String(minutes).padStart(2,"0")
+  );
+
+ }
+
+ return text;
+}
+
+/* =========================================================
+   CATEGORY
+========================================================= */
+
+function getCategory(row){
+
+ const rawType=
+  String(
+   row[columns.type]??""
+  ).trim();
+
+ const type=
+  normalize(rawType);
+
+ if(
+  type==="obdtrans"||
+  type.includes("obdtrans")||
+  type==="call"||
+  type.includes("call")
+ )
+  return "call";
+
+ if(
+  type==="whatsapp"||
+  type.includes("whatsapp")||
+  type==="message"||
+  type.includes("message")||
+  type==="msg"||
+  type.includes("msg")
+ )
+  return "msg";
+
+ if(
+  type==="voiceandsms"||
+  type.includes("voiceandsms")||
+  type==="sms"||
+  type.includes("sms")
+ )
+  return "sms";
+
+ const campaign=
+  columns.campaign
+  ?normalize(
+    row[columns.campaign]
+   )
+  :"";
+
+ if(
+  campaign.includes("obdtrans")||
+  campaign.includes("call")
+ )
+  return "call";
+
+ if(
+  campaign.includes("whatsapp")||
+  campaign.includes("message")
+ )
+  return "msg";
+
+ if(
+  campaign.includes("voiceandsms")||
+  campaign.includes("sms")
+ )
+  return "sms";
+
+ return "other";
+}
+
+/* =========================================================
+   NUMBER / MONEY
+========================================================= */
+
+function numberValue(value){
+
+ if(
+  value===null||
+  value===undefined||
+  value===""
+ )
+  return 0;
+
+ if(typeof value==="number")
+  return Number.isFinite(value)
+   ?value
+   :0;
+
+ let text=
+  String(value)
+  .trim()
+  .replace(/₹/g,"")
+  .replace(/rs\.?/gi,"")
+  .replace(/,/g,"")
+  .replace(/\s/g,"");
+
+ if(
+  text.startsWith("(")&&
+  text.endsWith(")")
+ )
+  text=
+   "-"+
+   text.slice(1,-1);
+
+ const result=
+  Number(text);
+
+ return Number.isFinite(result)
+  ?result
+  :0;
+}
+
+function money(value){
+
+ return(
+  "₹"+
+  Number(
+   value||0
+  ).toLocaleString(
+   "en-IN",
+   {
+    minimumFractionDigits:3,
+    maximumFractionDigits:3
+   }
+  )
+ );
+
+}
+
+/* =========================================================
+   FILTERS
+========================================================= */
+
+function populateFilters(){
+
+ const years=
+  new Set();
+
+ const months=
+  new Set();
+
+ const names=
+  new Set();
+
+ rawRows.forEach(row=>{
+
+  const date=
+   parseDate(
+    row[columns.date]
+   );
+
+  if(date){
+
+   years.add(
+    String(
+     date.getFullYear()
+    )
+   );
+
+   months.add(
+    monthKey(date)
+   );
+
+  }
+
+  if(columns.name){
+
+   const name=
+    String(
+     row[columns.name]??""
+    ).trim();
+
+   if(name)
+    names.add(name);
+
+  }
+
+ });
+
+ $("yearFilter").innerHTML=
+  '<option value="all">All Years</option>';
+
+ [...years]
+ .sort(
+  (a,b)=>
+   Number(b)-Number(a)
+ )
+ .forEach(year=>{
+
+  const option=
+   document.createElement(
+    "option"
+   );
+
+  option.value=year;
+
+  option.textContent=year;
+
+  $("yearFilter")
+   .appendChild(option);
+
+ });
+
+ $("monthFilter").innerHTML=
+  '<option value="all">All Months</option>';
+
+ [...months]
+ .sort()
+ .reverse()
+ .forEach(key=>{
+
+  const option=
+   document.createElement(
+    "option"
+   );
+
+  option.value=key;
+
+  option.textContent=
+   monthLabel(key);
+
+  $("monthFilter")
+   .appendChild(option);
+
+ });
+
+ $("nameFilter").innerHTML=
+  '<option value="all">All Names</option>';
+
+ [...names]
+ .sort(
+  (a,b)=>
+   a.localeCompare(
+    b,
+    undefined,
+    {
+     sensitivity:"base"
+    }
+   )
+ )
+ .forEach(name=>{
+
+  const option=
+   document.createElement(
+    "option"
+   );
+
+  option.value=name;
+
+  option.textContent=name;
+
+  $("nameFilter")
+   .appendChild(option);
+
+ });
+
+}
+
+function monthLabel(key){
+
+ const parts=
+  key.split("-").map(Number);
+
+ return new Date(
+  parts[0],
+  parts[1]-1,
+  1
+ ).toLocaleString(
+  "en-IN",
+  {
+   month:"long",
+   year:"numeric"
+  }
+ );
+
+}
+
+[
+ "fromDate",
+ "toDate",
+ "yearFilter",
+ "monthFilter",
+ "categoryFilter",
+ "nameFilter"
+].forEach(id=>{
+
+ $(id).addEventListener(
+  "change",
+  updateDashboard
+ );
+
+});
+
+$("search").addEventListener(
+ "input",
+ debounce(
+  updateDashboard,
+  120
+ )
+);
+
+$("resetBtn")
+ .addEventListener(
+  "click",
+  resetFilters
+ );
+
+/* =========================================================
+   FILTER DATA
+========================================================= */
+
+function getFilteredRows(){
+
+ let from=
+  $("fromDate").value;
+
+ let to=
+  $("toDate").value;
+
+ if(
+  from &&
+  to &&
+  from>to
+ ){
+
+  const temp=from;
+
+  from=to;
+  to=temp;
+
+ }
+
+ const year=
+  $("yearFilter").value;
+
+ const month=
+  $("monthFilter").value;
+
+ const category=
+  $("categoryFilter").value;
+
+ const name=
+  $("nameFilter").value;
+
+ const search=
+  normalize(
+   $("search").value
+  );
+
+ return rawRows.filter(row=>{
+
+  const date=
+   parseDate(
+    row[columns.date]
+   );
+
+  if(!date)
+   return false;
+
+  const key=
+   dateKey(date);
+
+  if(
+   from &&
+   key<from
+  )
+   return false;
+
+  if(
+   to &&
+   key>to
+  )
+   return false;
+
+  if(
+   year!=="all" &&
+   String(
+    date.getFullYear()
+   )!==year
+  )
+   return false;
+
+  if(
+   month!=="all" &&
+   monthKey(date)!==month
+  )
+   return false;
+
+  if(
+   category!=="all" &&
+   getCategory(row)!==category
+  )
+   return false;
+
+  if(
+   name!=="all" &&
+   columns.name
+  ){
+
+   const rowName=
+    String(
+     row[columns.name]??""
+    ).trim();
+
+   if(rowName!==name)
+    return false;
+
+  }
+
+  if(search){
+
+   const searchText=[
+
+    columns.name
+     ?row[columns.name]
+     :"",
+
+    columns.campaign
+     ?row[columns.campaign]
+     :"",
+
+    row[columns.type],
+
+    columns.delivered
+     ?row[columns.delivered]
+     :"",
+
+    columns.count
+     ?row[columns.count]
+     :""
+
+   ]
+   .map(normalize)
+   .join(" ");
+
+   if(
+    !searchText.includes(search)
+   )
+    return false;
+
+  }
+
+  return true;
+
+ });
+
+}
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+function updateDashboard(){
+
+ if(!rawRows.length)
+  return;
+
+ const data=
+  getFilteredRows();
+
+ currentFilteredRows=
+  data;
+
+ $("recordCount").textContent=
+  data.length.toLocaleString(
+   "en-IN"
+  )+
+  " records";
+
+ const totals={
+  call:0,
+  msg:0,
+  sms:0,
+  other:0
+ };
+
+ const counts={
+  call:0,
+  msg:0,
+  sms:0,
+  other:0
+ };
+
+ data.forEach(row=>{
+
+  const category=
+   getCategory(row);
+
+  const expense=
+   numberValue(
+    row[columns.expense]
+   );
+
+  totals[category]+=expense;
+
+  counts[category]++;
+
+ });
+
+ const grandTotal=
+  totals.call+
+  totals.msg+
+  totals.sms+
+  totals.other;
+
+ animateMoney(
+  $("callTotal"),
+  totals.call
+ );
+
+ animateMoney(
+  $("msgTotal"),
+  totals.msg
+ );
+
+ animateMoney(
+  $("smsTotal"),
+  totals.sms
+ );
+
+ animateMoney(
+  $("grandTotal"),
+  grandTotal
+ );
+
+ $("callRows").textContent=
+  counts.call.toLocaleString(
+   "en-IN"
+  )+
+  " transactions";
+
+ $("msgRows").textContent=
+  counts.msg.toLocaleString(
+   "en-IN"
+  )+
+  " transactions";
+
+ $("smsRows").textContent=
+  counts.sms.toLocaleString(
+   "en-IN"
+  )+
+  " transactions";
+
+ $("totalRows").textContent=
+  data.length.toLocaleString(
+   "en-IN"
+  )+
+  " transactions";
+
+ buildDaily(data);
+
+ renderMiniStats(
+  totals,
+  grandTotal
+ );
+
+ renderDailyTable();
+
+ renderCharts(totals);
+
+ renderTransactions(data);
+
+}
+
+/* =========================================================
+   DAILY
+========================================================= */
+
+function buildDaily(data){
+
+ dailyData={};
+
+ data.forEach(row=>{
+
+  const date=
+   parseDate(
+    row[columns.date]
+   );
+
+  if(!date)
+   return;
+
+  const key=
+   dateKey(date);
+
+  if(!dailyData[key]){
+
+   dailyData[key]={
+    call:0,
+    msg:0,
+    sms:0,
+    other:0,
+    total:0
+   };
+
+  }
+
+  const category=
+   getCategory(row);
+
+  const amount=
+   numberValue(
+    row[columns.expense]
+   );
+
+  dailyData[key][category]+=amount;
+
+  dailyData[key].total+=amount;
+
+ });
+
+}
+
+function renderMiniStats(
+ totals,
+ grandTotal
+){
+
+ const keys=
+  Object.keys(
+   dailyData
+  ).sort();
+
+ $("activeDays").textContent=
+  keys.length.toLocaleString(
+   "en-IN"
+  );
+
+ if(!keys.length){
+
+  $("avgDaily").textContent=
+   money(0);
+
+  $("highestDay").textContent="-";
+
+  $("highestCategory").textContent="-";
+
+  return;
+ }
+
+ let highest=-Infinity;
+
+ let highestDate=null;
+
+ keys.forEach(key=>{
+
+  if(
+   dailyData[key].total>
+   highest
+  ){
+
+   highest=
+    dailyData[key].total;
+
+   highestDate=key;
+
+  }
+
+ });
+
+ $("avgDaily").textContent=
+  money(
+   grandTotal/
+   keys.length
+  );
+
+ $("highestDay").textContent=
+  formatDate(
+   keyToDate(
+    highestDate
+   )
+  )+
+  " • "+
+  money(highest);
+
+ const categories=[
+
+  {
+   label:"Call",
+   value:totals.call
+  },
+
+  {
+   label:"Message",
+   value:totals.msg
+  },
+
+  {
+   label:"SMS",
+   value:totals.sms
+  },
+
+  {
+   label:"Other",
+   value:totals.other
+  }
+
+ ];
+
+ categories.sort(
+  (a,b)=>
+   b.value-a.value
+ );
+
+ $("highestCategory").textContent=
+  categories[0].value>0
+  ?
+  categories[0].label+
+  " • "+
+  money(
+   categories[0].value
+  )
+  :
+  "-";
+
+}
+
+/* =========================================================
+   DAILY TABLE
+========================================================= */
+
+function renderDailyTable(){
+
+ const tbody=
+  $("dailyTable");
+
+ tbody.innerHTML="";
+
+ const keys=
+  Object.keys(
+   dailyData
+  ).sort();
+
+ if(!keys.length){
+
+  tbody.innerHTML=`
+   <tr>
+    <td
+     colspan="5"
+     class="no-data">
+     No matching data found.
+    </td>
+   </tr>
+  `;
+
+  return;
+ }
+
+ let totalCall=0;
+ let totalMsg=0;
+ let totalSms=0;
+ let total=0;
+
+ const fragment=
+  document.createDocumentFragment();
+
+ keys.forEach(key=>{
+
+  const item=
+   dailyData[key];
+
+  totalCall+=item.call;
+
+  totalMsg+=item.msg;
+
+  totalSms+=item.sms;
+
+  total+=item.total;
+
+  const tr=
+   document.createElement("tr");
+
+  tr.innerHTML=`
+
+   <td>
+    <strong>
+     ${formatDate(
+      keyToDate(key)
+     )}
+    </strong>
+   </td>
+
+   <td>
+    ${money(item.call)}
+   </td>
+
+   <td>
+    ${money(item.msg)}
+   </td>
+
+   <td>
+    ${money(item.sms)}
+   </td>
+
+   <td>
+    <strong>
+     ${money(item.total)}
+    </strong>
+   </td>
+
+  `;
+
+  fragment.appendChild(tr);
+
+ });
+
+ tbody.appendChild(fragment);
+
+ const totalRow=
+  document.createElement("tr");
+
+ totalRow.className=
+  "total-row";
+
+ totalRow.innerHTML=`
+
+  <td>
+   TOTAL
+  </td>
+
+  <td>
+   ${money(totalCall)}
+  </td>
+
+  <td>
+   ${money(totalMsg)}
+  </td>
+
+  <td>
+   ${money(totalSms)}
+  </td>
+
+  <td>
+   ${money(total)}
+  </td>
+
+ `;
+
+ tbody.appendChild(totalRow);
+
+}
+
+/* =========================================================
+   CHARTS
+========================================================= */
+
+function chartFont(){
+
+ return{
+  family:'Inter,"Segoe UI",Arial',
+  size:10
+ };
+
+}
+
+function renderCharts(totals){
+
+ renderTrendChart();
+
+ renderDonutChart(totals);
+
+ renderMonthlyChart();
+
+ renderCampaignChart();
+
+ renderNameChart();
+
+}
+
+function renderTrendChart(){
+
+ const keys=
+  Object.keys(
+   dailyData
+  ).sort();
+
+ const labels=
+  keys.map(key=>{
+
+   const date=
+    keyToDate(key);
+
+   return(
+    String(
+     date.getDate()
+    ).padStart(2,"0")
+    +"-"+
+    String(
+     date.getMonth()+1
+    ).padStart(2,"0")
+   );
+
+  });
+
+ if(trendChart)
+  trendChart.destroy();
+
+ trendChart=
+  new Chart(
+   $("trendChart"),
+   {
+
+    type:"line",
+
+    data:{
+
+     labels,
+
+     datasets:[
+
+      {
+       label:"Call",
+
+       data:
+        keys.map(
+         k=>dailyData[k].call
+        ),
+
+       borderColor:"#1478c9",
+
+       backgroundColor:
+        "rgba(20,120,201,.07)",
+
+       fill:true,
+
+       tension:.35,
+
+       borderWidth:2,
+
+       pointRadius:2,
+
+       pointHoverRadius:5
+      },
+
+      {
+       label:"Message",
+
+       data:
+        keys.map(
+         k=>dailyData[k].msg
+        ),
+
+       borderColor:"#159447",
+
+       backgroundColor:
+        "rgba(21,148,71,.06)",
+
+       fill:true,
+
+       tension:.35,
+
+       borderWidth:2,
+
+       pointRadius:2,
+
+       pointHoverRadius:5
+      },
+
+      {
+       label:"SMS",
+
+       data:
+        keys.map(
+         k=>dailyData[k].sms
+        ),
+
+       borderColor:"#e89a16",
+
+       backgroundColor:
+        "rgba(232,154,22,.06)",
+
+       fill:true,
+
+       tension:.35,
+
+       borderWidth:2,
+
+       pointRadius:2,
+
+       pointHoverRadius:5
+      }
+
+     ]
+
+    },
+
+    options:{
+
+     responsive:true,
+
+     maintainAspectRatio:false,
+
+     animation:{
+      duration:700,
+      easing:"easeOutQuart"
+     },
+
+     interaction:{
+      mode:"index",
+      intersect:false
+     },
+
+     plugins:{
+
+      legend:{
+       position:"bottom",
+
+       labels:{
+        usePointStyle:true,
+        padding:15,
+        font:chartFont()
+       }
+      },
+
+      tooltip:{
+       callbacks:{
+        label:context=>
+         " "+
+         context.dataset.label+
+         ": "+
+         money(context.raw)
+       }
+      }
+
+     },
+
+     scales:{
+
+      x:{
+       grid:{
+        display:false
+       },
+
+       ticks:{
+        font:chartFont()
+       }
+      },
+
+      y:{
+
+       beginAtZero:true,
+
+       ticks:{
+
+        font:chartFont(),
+
+        callback:value=>
+         "₹"+
+         Number(value)
+         .toLocaleString(
+          "en-IN"
+         )
+       }
+
+      }
+
+     }
+
+    }
+
+   }
+  );
+
+}
+
+function renderDonutChart(totals){
+
+ if(donutChart)
+  donutChart.destroy();
+
+ donutChart=
+  new Chart(
+   $("donutChart"),
+   {
+
+    type:"doughnut",
+
+    data:{
+
+     labels:[
+      "Call",
+      "Message",
+      "SMS",
+      "Other"
+     ],
+
+     datasets:[{
+
+      data:[
+       totals.call,
+       totals.msg,
+       totals.sms,
+       totals.other
+      ],
+
+      backgroundColor:[
+       "#1478c9",
+       "#159447",
+       "#e89a16",
+       "#94a3b8"
+      ],
+
+      borderWidth:0,
+
+      hoverOffset:8
+
+     }]
+
+    },
+
+    options:{
+
+     responsive:true,
+
+     maintainAspectRatio:false,
+
+     cutout:"68%",
+
+     animation:{
+      animateRotate:true,
+      duration:700
+     },
+
+     plugins:{
+
+      legend:{
+       position:"bottom",
+
+       labels:{
+        usePointStyle:true,
+        padding:13,
+        font:chartFont()
+       }
+      },
+
+      tooltip:{
+       callbacks:{
+        label:context=>
+         " "+
+         context.label+
+         ": "+
+         money(context.raw)
+       }
+      }
+
+     }
+
+    }
+
+   }
+  );
+
+}
+
+function renderMonthlyChart(){
+
+ const monthly={};
+
+ currentFilteredRows.forEach(row=>{
+
+  const date=
+   parseDate(
+    row[columns.date]
+   );
+
+  if(!date)
+   return;
+
+  const key=
+   monthKey(date);
+
+  if(!monthly[key])
+   monthly[key]=0;
+
+  monthly[key]+=
+   numberValue(
+    row[columns.expense]
+   );
+
+ });
+
+ const keys=
+  Object.keys(monthly)
+  .sort();
+
+ if(monthlyChart)
+  monthlyChart.destroy();
+
+ monthlyChart=
+  new Chart(
+   $("monthlyChart"),
+   {
+
+    type:"bar",
+
+    data:{
+
+     labels:
+      keys.map(monthLabel),
+
+     datasets:[{
+
+      label:"Expense",
+
+      data:
+       keys.map(
+        k=>monthly[k]
+       ),
+
+      backgroundColor:
+       "#1478c9",
+
+      borderRadius:7,
+
+      maxBarThickness:40
+
+     }]
+
+    },
+
+    options:{
+
+     responsive:true,
+
+     maintainAspectRatio:false,
+
+     animation:{
+      duration:700
+     },
+
+     plugins:{
+
+      legend:{
+       display:false
+      },
+
+      tooltip:{
+       callbacks:{
+        label:context=>
+         " "+
+         money(context.raw)
+       }
+      }
+
+     },
+
+     scales:{
+
+      x:{
+       grid:{
+        display:false
+       },
+
+       ticks:{
+        font:chartFont()
+       }
+      },
+
+      y:{
+
+       beginAtZero:true,
+
+       ticks:{
+
+        font:chartFont(),
+
+        callback:value=>
+         "₹"+
+         Number(value)
+         .toLocaleString(
+          "en-IN"
+         )
+       }
+
+      }
+
+     }
+
+    }
+
+   }
+  );
+
+}
+
+function renderCampaignChart(){
+
+ const campaignTotals={};
+
+ currentFilteredRows.forEach(row=>{
+
+  const campaign=
+   columns.campaign
+   ?
+   String(
+    row[columns.campaign]??""
+   ).trim()
+   :
+   "";
+
+  const label=
+   campaign||
+   "Unknown";
+
+  if(!campaignTotals[label])
+   campaignTotals[label]=0;
+
+  campaignTotals[label]+=
+   numberValue(
+    row[columns.expense]
+   );
+
+ });
+
+ const sorted=
+  Object.entries(
+   campaignTotals
+  )
+  .sort(
+   (a,b)=>b[1]-a[1]
+  )
+  .slice(0,8);
+
+ if(campaignChart)
+  campaignChart.destroy();
+
+ campaignChart=
+  new Chart(
+   $("campaignChart"),
+   {
+
+    type:"bar",
+
+    data:{
+
+     labels:
+      sorted.map(
+       x=>truncate(
+        x[0],
+        20
+       )
+      ),
+
+     datasets:[{
+
+      label:"Expense",
+
+      data:
+       sorted.map(
+        x=>x[1]
+       ),
+
+      backgroundColor:
+       "#7650d1",
+
+      borderRadius:6,
+
+      maxBarThickness:30
+
+     }]
+
+    },
+
+    options:{
+
+     indexAxis:"y",
+
+     responsive:true,
+
+     maintainAspectRatio:false,
+
+     animation:{
+      duration:700
+     },
+
+     plugins:{
+
+      legend:{
+       display:false
+      },
+
+      tooltip:{
+       callbacks:{
+        label:context=>
+         " "+
+         money(context.raw)
+       }
+      }
+
+     },
+
+     scales:{
+
+      x:{
+
+       beginAtZero:true,
+
+       ticks:{
+
+        font:chartFont(),
+
+        callback:value=>
+         "₹"+
+         Number(value)
+         .toLocaleString(
+          "en-IN"
+         )
+       }
+
+      },
+
+      y:{
+       grid:{
+        display:false
+       },
+
+       ticks:{
+        font:chartFont()
+       }
+      }
+
+     }
+
+    }
+
+   }
+  );
+
+}
+
+function renderNameChart(){
+
+ const totals={};
+
+ currentFilteredRows.forEach(row=>{
+
+  const name=
+   columns.name
+   ?
+   String(
+    row[columns.name]??""
+   ).trim()
+   :
+   "";
+
+  const label=
+   name||
+   "Unknown";
+
+  if(!totals[label])
+   totals[label]=0;
+
+  totals[label]+=
+   numberValue(
+    row[columns.expense]
+   );
+
+ });
+
+ const sorted=
+  Object.entries(
+   totals
+  )
+  .sort(
+   (a,b)=>b[1]-a[1]
+  )
+  .slice(0,8);
+
+ if(nameChart)
+  nameChart.destroy();
+
+ nameChart=
+  new Chart(
+   $("nameChart"),
+   {
+
+    type:"bar",
+
+    data:{
+
+     labels:
+      sorted.map(
+       x=>truncate(
+        x[0],
+        18
+       )
+      ),
+
+     datasets:[{
+
+      label:"Expense",
+
+      data:
+       sorted.map(
+        x=>x[1]
+       ),
+
+      backgroundColor:
+       "#159447",
+
+      borderRadius:6,
+
+      maxBarThickness:30
+
+     }]
+
+    },
+
+    options:{
+
+     indexAxis:"y",
+
+     responsive:true,
+
+     maintainAspectRatio:false,
+
+     animation:{
+      duration:700
+     },
+
+     plugins:{
+
+      legend:{
+       display:false
+      },
+
+      tooltip:{
+       callbacks:{
+        label:context=>
+         " "+
+         money(context.raw)
+       }
+      }
+
+     },
+
+     scales:{
+
+      x:{
+
+       beginAtZero:true,
+
+       ticks:{
+
+        font:chartFont(),
+
+        callback:value=>
+         "₹"+
+         Number(value)
+         .toLocaleString(
+          "en-IN"
+         )
+       }
+
+      },
+
+      y:{
+
+       grid:{
+        display:false
+       },
+
+       ticks:{
+        font:chartFont()
+       }
+
+      }
+
+     }
+
+    }
+
+   }
+  );
+
+}
+
+/* =========================================================
+   TRANSACTION TABLE
+========================================================= */
+
+function renderTransactions(data){
+
+ const tbody=
+  $("transactionTable");
+
+ tbody.innerHTML="";
+
+ const maxRows=1000;
+
+ $("transactionInfo").textContent=
+  "Showing "+
+  Math.min(
+   data.length,
+   maxRows
+  ).toLocaleString(
+   "en-IN"
+  )+
+  " of "+
+  data.length.toLocaleString(
+   "en-IN"
+  )+
+  " matching transactions";
+
+ if(!data.length){
+
+  tbody.innerHTML=`
+   <tr>
+    <td
+     colspan="11"
+     class="no-data">
+     No matching transactions.
+    </td>
+   </tr>
+  `;
+
+  return;
+ }
+
+ const visible=
+  data.slice()
+  .sort(
+   (a,b)=>{
+
+    const da=
+     parseDate(
+      a[columns.date]
+     );
+
+    const db=
+     parseDate(
+      b[columns.date]
+     );
+
+    return db-da;
+
+   }
+  )
+  .slice(
+   0,
+   maxRows
+  );
+
+ const fragment=
+  document.createDocumentFragment();
+
+ visible.forEach(row=>{
+
+  const date=
+   parseDate(
+    row[columns.date]
+   );
+
+  const category=
+   getCategory(row);
+
+  let badge=
+   "badge-other";
+
+  let label=
+   "Other";
+
+  if(category==="call"){
+
+   badge=
+    "badge-call";
+
+   label=
+    "Call";
+
+  }
+  else if(
+   category==="msg"
+  ){
+
+   badge=
+    "badge-msg";
+
+   label=
+    "Message";
+
+  }
+  else if(
+   category==="sms"
+  ){
+
+   badge=
+    "badge-sms";
+
+   label=
+    "SMS";
+
+  }
+
+  const transactionDate=
+   date
+   ?
+   String(
+    date.getDate()
+   ).padStart(2,"0")
+   +"-"+
+   String(
+    date.getMonth()+1
+   ).padStart(2,"0")
+   +"-"+
+   date.getFullYear()
+   :
+   "-";
+
+  /*
+   =====================================================
+   IMPORTANT:
+   TIME = 12 HOUR
+   AM / PM NOT DISPLAYED
+   =====================================================
+  */
+
+  const transactionTime=
+   formatTime12NoAMPM(
+    columns.time
+    ?row[columns.time]
+    :""
+   );
+
+  const tr=
+   document.createElement("tr");
+
+  tr.innerHTML=`
+
+   <td>
+    ${transactionDate}
+   </td>
+
+   <td>
+    ${safe(
+     columns.name
+     ?row[columns.name]
+     :""
+    )}
+   </td>
+
+   <td>
+    ${safe(
+     columns.campaign
+     ?row[columns.campaign]
+     :""
+    )}
+   </td>
+
+   <td>
+    ${safe(
+     row[columns.type]
+    )}
+   </td>
+
+   <td>
+
+    <span
+     class="badge ${badge}">
+
+     ${label}
+
+    </span>
+
+   </td>
+
+   <td>
+    ${safe(
+     columns.count
+     ?row[columns.count]
+     :""
+    )}
+   </td>
+
+   <td>
+    ${safe(
+     columns.delivered
+     ?row[columns.delivered]
+     :""
+    )}
+   </td>
+
+   <td>
+    <strong>
+     ${transactionTime}
+    </strong>
+   </td>
+
+   <td>
+    ${safe(
+     columns.pulse
+     ?row[columns.pulse]
+     :""
+    )}
+   </td>
+
+   <td>
+    ${safe(
+     columns.charge
+     ?row[columns.charge]
+     :""
+    )}
+   </td>
+
+   <td>
+    <strong>
+     ${money(
+      numberValue(
+       row[columns.expense]
+      )
+     )}
+    </strong>
+   </td>
+
+  `;
+
+  fragment.appendChild(tr);
+
+ });
+
+ tbody.appendChild(fragment);
+
+}
+
+/* =========================================================
+   RESET
+========================================================= */
+
+function resetFilters(){
+
+ $("fromDate").value="";
+
+ $("toDate").value="";
+
+ $("yearFilter").value="all";
+
+ $("monthFilter").value="all";
+
+ $("categoryFilter").value="all";
+
+ $("nameFilter").value="all";
+
+ $("search").value="";
+
+ updateDashboard();
+
+}
+
+/* =========================================================
+   EXPORT DAILY
+========================================================= */
+
+$("exportDailyBtn")
+ .addEventListener(
+  "click",
+  exportDailyCSV
+ );
+
+function exportDailyCSV(){
+
+ const keys=
+  Object.keys(
+   dailyData
+  ).sort();
+
+ if(!keys.length){
+
+  alert(
+   "Export ke liye data available nahi hai."
+  );
+
+  return;
+ }
+
+ const output=[
+
+  [
+   "Date",
+   "Call Expense",
+   "Message Expense",
+   "SMS Expense",
+   "Other Expense",
+   "Total Expense"
+  ]
+
+ ];
+
+ keys.forEach(key=>{
+
+  const item=
+   dailyData[key];
+
+  output.push([
+
+   formatDate(
+    keyToDate(key)
+   ),
+
+   item.call.toFixed(3),
+
+   item.msg.toFixed(3),
+
+   item.sms.toFixed(3),
+
+   item.other.toFixed(3),
+
+   item.total.toFixed(3)
+
+  ]);
+
+ });
+
+ downloadCSV(
+  output,
+  "communication-expense-summary.csv"
+ );
+
+}
+
+/* =========================================================
+   EXPORT TRANSACTIONS
+========================================================= */
+
+$("exportTransactionBtn")
+ .addEventListener(
+  "click",
+  exportTransactionsCSV
+ );
+
+function exportTransactionsCSV(){
+
+ if(
+  !currentFilteredRows.length
+ ){
+
+  alert(
+   "Export ke liye matching transactions available nahi hain."
+  );
+
+  return;
+ }
+
+ const output=[
+
+  [
+   "Date",
+   "Name",
+   "Campaign",
+   "Type",
+   "Category",
+   "Count Data",
+   "Delivered",
+   "Time",
+   "Schedule",
+   "Pulse",
+   "Charge",
+   "Expenses"
+  ]
+
+ ];
+
+ currentFilteredRows.forEach(row=>{
+
+  const date=
+   parseDate(
+    row[columns.date]
+   );
+
+  output.push([
+
+   date
+   ?
+   formatDate(date)
+   :
+   "",
+
+   columns.name
+    ?row[columns.name]
+    :"",
+
+   columns.campaign
+    ?row[columns.campaign]
+    :"",
+
+   row[columns.type]??"",
+
+   getCategory(row),
+
+   columns.count
+    ?row[columns.count]
+    :"",
+
+   columns.delivered
+    ?row[columns.delivered]
+    :"",
+
+   /*
+    12-hour numerical format,
+    no AM/PM in exported file too
+   */
+
+   formatTime12NoAMPM(
+    columns.time
+    ?row[columns.time]
+    :""
+   ),
+
+   columns.schedule
+    ?row[columns.schedule]
+    :"",
+
+   columns.pulse
+    ?row[columns.pulse]
+    :"",
+
+   columns.charge
+    ?row[columns.charge]
+    :"",
+
+   numberValue(
+    row[columns.expense]
+   ).toFixed(3)
+
+  ]);
+
+ });
+
+ downloadCSV(
+  output,
+  "filtered-communication-transactions.csv"
+ );
+
+}
+
+function downloadCSV(
+ output,
+ filename
+){
+
+ const csv=
+  output
+  .map(
+   row=>
+    row.map(
+     csvEscape
+    ).join(",")
+  )
+  .join("\n");
+
+ const blob=
+  new Blob(
+   ["\uFEFF"+csv],
+   {
+    type:
+     "text/csv;charset=utf-8"
+   }
+  );
+
+ const url=
+  URL.createObjectURL(blob);
+
+ const link=
+  document.createElement("a");
+
+ link.href=url;
+
+ link.download=filename;
+
+ document.body.appendChild(link);
+
+ link.click();
+
+ link.remove();
+
+ setTimeout(
+  ()=>URL.revokeObjectURL(url),
+  100
+ );
+
+}
+
+function csvEscape(value){
+
+ const text=
+  String(value??"");
+
+ if(
+  /[",\n\r]/.test(text)
+ ){
+
+  return(
+   '"'+
+   text.replace(
+    /"/g,
+    '""'
+   )+
+   '"'
+  );
+
+ }
+
+ return text;
+}
+
+/* =========================================================
+   MONEY ANIMATION
+========================================================= */
+
+const previousValues=
+ new WeakMap();
+
+function animateMoney(
+ element,
+ target
+){
+
+ const previous=
+  previousValues.get(element)??0;
+
+ const start=
+  performance.now();
+
+ const duration=450;
+
+ function animate(now){
+
+  const progress=
+   Math.min(
+    (now-start)/
+    duration,
+    1
+   );
+
+  const eased=
+   1-
+   Math.pow(
+    1-progress,
+    3
+   );
+
+  const current=
+   previous+
+   (target-previous)*
+   eased;
+
+  element.textContent=
+   money(current);
+
+  if(progress<1){
+
+   requestAnimationFrame(
+    animate
+   );
+
+  }
+  else{
+
+   previousValues.set(
+    element,
+    target
+   );
+
+  }
+
+ }
+
+ requestAnimationFrame(
+  animate
+ );
+
+}
+
+/* =========================================================
+   SAFE HTML
+========================================================= */
+
+function safe(value){
+
+ if(
+  value===null||
+  value===undefined||
+  value===""
+ )
+  return "-";
+
+ return escapeHTML(
+  String(value)
+ );
+
+}
+
+function escapeHTML(value){
+
+ return String(value)
+
+  .replace(
+   /&/g,
+   "&amp;"
+  )
+
+  .replace(
+   /</g,
+   "&lt;"
+  )
+
+  .replace(
+   />/g,
+   "&gt;"
+  )
+
+  .replace(
+   /"/g,
+   "&quot;"
+  )
+
+  .replace(
+   /'/g,
+   "&#039;"
+  );
+
+}
+
+function truncate(
+ value,
+ length
+){
+
+ const text=
+  String(value??"");
+
+ if(
+  text.length<=length
+ )
+  return text;
+
+ return(
+  text.slice(
+   0,
+   length-1
+  )+
+  "…"
+ );
+
+}
+
+/* =========================================================
+   DEBOUNCE
+========================================================= */
+
+function debounce(
+ fn,
+ delay
+){
+
+ let timer;
+
+ return function(){
+
+  const context=this;
+
+  const args=arguments;
+
+  clearTimeout(timer);
+
+  timer=
+   setTimeout(
+    ()=>fn.apply(
+     context,
+     args
+    ),
+    delay
+   );
+
+ };
+
+}
+
+/* =========================================================
+   LOADER
+========================================================= */
+
+function showLoader(show){
+
+ $("loader").style.display=
+  show
+  ?"grid"
+  :"none";
+
+}
+
+function showError(message){
+
+ $("error").style.display=
+  "block";
+
+ $("error").innerHTML=
+  "<strong>Error:</strong> "+
+  escapeHTML(message);
+
+}
+
+function hideError(){
+
+ $("error").style.display=
+  "none";
+
+ $("error").textContent="";
+
+}
+
+console.log(
+ "Communication Expense Tracker loaded."
+);
+
+</script>
+
+</body>
+</html>
